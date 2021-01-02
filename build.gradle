@@ -38,6 +38,10 @@ repositories {
         name "Jared"
         url "http://maven.blamejared.com/"
     }
+	maven {
+        name = "baubles"
+        url = "http://maven.thiakil.com"
+    }
 }
 
 version = "0.0.1"
