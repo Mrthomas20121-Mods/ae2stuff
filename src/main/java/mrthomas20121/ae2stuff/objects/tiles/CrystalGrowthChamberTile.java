@@ -2,6 +2,7 @@ package mrthomas20121.ae2stuff.objects.tiles;
 
 import appeng.api.AEApi;
 import appeng.api.config.AccessRestriction;
+import appeng.api.config.Actionable;
 import appeng.api.config.Upgrades;
 import appeng.api.definitions.ITileDefinition;
 import appeng.api.implementations.tiles.ICrystalGrowthAccelerator;
@@ -15,14 +16,12 @@ import appeng.util.inv.InvOperation;
 import appeng.util.inv.WrapperChainedItemHandler;
 import appeng.util.inv.filter.IAEItemFilter;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.items.IItemHandler;
 import appeng.api.implementations.items.IGrowableCrystal;
 
 import javax.annotation.Nonnull;
-import java.util.Stack;
 
 public class CrystalGrowthChamberTile extends AENetworkPowerTile implements ITickable, ICrystalGrowthAccelerator {
 
@@ -66,31 +65,31 @@ public class CrystalGrowthChamberTile extends AENetworkPowerTile implements ITic
 
     @Override
     public void update() {
-        if(world.getTotalWorldTime() % ticks == 0) {
-            int installedUpgrades = upgrades.getInstalledUpgrades(Upgrades.SPEED);
-            int power = 100*(installedUpgrades);
+        int installedUpgrades = upgrades.getInstalledUpgrades(Upgrades.SPEED);
+        int power = 100*(installedUpgrades);
+        double half_power = this.getInternalMaxPower()/2;
 
-            if(this.getInternalMaxPower() >= power) {
-                for(int i = 0; i<cellInventory.getSlots(); i++) {
-                    ItemStack stack = cellInventory.getStackInSlot(i);
-                    if(stack.isEmpty()) continue;
-                    if(stack.getItem() instanceof IGrowableCrystal) {
-                        for(int j = 0; j<installedUpgrades; j++) {
-                            IGrowableCrystal item = (IGrowableCrystal)stack.getItem();
-                            item.triggerGrowth(stack);
-                        }
+        if(this.getInternalCurrentPower() >= power && this.getInternalCurrentPower() >= half_power) {
+            for(int i = 0; i<cellInventory.getSlots(); i++) {
+                ItemStack stack = cellInventory.getStackInSlot(i);
+                if(stack.isEmpty()) continue;
+                if(stack.getItem() instanceof IGrowableCrystal) {
+                    for(int j = 0; j<installedUpgrades; j++) {
+                        IGrowableCrystal item = (IGrowableCrystal)stack.getItem();
+                        item.triggerGrowth(stack);
+                        this.extractAEPower(power, Actionable.SIMULATE);
                     }
-                    else {
-                        int redstone = containStack(new ItemStack(Items.REDSTONE, 1));
-                        int nether_quartz = containStack(new ItemStack(Items.QUARTZ, 1));
-                        int charged_certus_quartz = containStack(MaterialType.CERTUS_QUARTZ_CRYSTAL_CHARGED.stack(1));
+                }
+                else {
+                    int redstone = containStack(new ItemStack(Items.REDSTONE, 1));
+                    int nether_quartz = containStack(new ItemStack(Items.QUARTZ, 1));
+                    int charged_certus_quartz = containStack(MaterialType.CERTUS_QUARTZ_CRYSTAL_CHARGED.stack(1));
 
-                        if(redstone > 0 && nether_quartz > 0 && charged_certus_quartz > 0) {
-                            decreaseStack(redstone);
-                            decreaseStack(nether_quartz);
-                            decreaseStack(charged_certus_quartz);
-                            cellInventory.insertItem(findFirstEmptySlot(), MaterialType.FLUIX_CRYSTAL.stack(1), false);
-                        }
+                    if(redstone > 0 && nether_quartz > 0 && charged_certus_quartz > 0) {
+                        decreaseStack(redstone);
+                        decreaseStack(nether_quartz);
+                        decreaseStack(charged_certus_quartz);
+                        cellInventory.insertItem(findFirstEmptySlot(), MaterialType.FLUIX_CRYSTAL.stack(1), false);
                     }
                 }
             }
@@ -125,7 +124,14 @@ public class CrystalGrowthChamberTile extends AENetworkPowerTile implements ITic
 
     @Override
     public boolean isPowered() {
-        return false;
+        return this.getInternalMaxPower()>0;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void updateHandler() {
+        if(!this.isCached) {
+
+        }
     }
 
     private class InputInventoryFilter implements IAEItemFilter
@@ -139,11 +145,9 @@ public class CrystalGrowthChamberTile extends AENetworkPowerTile implements ITic
         @Override
         public boolean allowInsert( IItemHandler inv, int slot, ItemStack stack )
         {
-            if( CrystalGrowthChamberTile.this.isPowered() )
+            if(CrystalGrowthChamberTile.this.isPowered())
             {
-                //CrystalGrowthChamberTile.this.updateHandler();
-                //return CrystalGrowthChamberTile.this.cellHandler != null && CrystalGrowthChamberTile.this.cellHandler
-                //        .getChannel() == AEApi.instance().storage().getStorageChannel( IItemStorageChannel.class );
+                CrystalGrowthChamberTile.this.updateHandler();
             }
             return false;
         }
