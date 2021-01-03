@@ -1,0 +1,16 @@
+[
+{
+  "modid": "ae2stuff",
+  "name": "Ae2 Stuff",
+  "description": "This mods adds various bits and machines to Applied Energistics 2.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Mrthomas20121"],
+  "credits": "Bdew for the original Ae2 stuff mod.",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

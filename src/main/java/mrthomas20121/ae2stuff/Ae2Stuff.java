@@ -1,5 +1,6 @@
 package mrthomas20121.ae2stuff;
 
+import mrthomas20121.ae2stuff.util.RegistryHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
@@ -29,6 +30,7 @@ public class Ae2Stuff
     public void preInit(FMLPreInitializationEvent event)
     {
         MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(RegistryHandler.class);
    }
 
     @Mod.EventHandler
